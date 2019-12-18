@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'application'
 }
 
 group 'com.highspot'
@@ -7,11 +7,16 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+application {
+    mainClassName = 'com.highspot.assignment.Main'
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compile group: 'info.picocli', name: 'picocli', version: '4.1.2'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.29'
     compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.29'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
