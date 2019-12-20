@@ -127,9 +127,8 @@ Once the changes are applied, I would implement a custom write that pulls the da
 ### Version 3.0 and beyond
 If we want to make the application very scalable, the application will not be a standalone app. I would re-design it as an ingestion pipeline, which is more distributed system. The pipeline would do the following:
 * User upload the large files to S3
-* an ingestion service checks any new file uploaded, 
-
-if that's the case, it will first ingest and populate input files into database
-* once it is done, 
+* a database that commonly shared with the user uploaded files
+* an ingestion service checks any new files uploaded. If that's the case, it will first ingest and populate input files into database
+* once it is done, execute the assocated changes
 
 
