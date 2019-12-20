@@ -73,8 +73,9 @@ Run the command to execute unit tests:
 ```
 
 ## File content
-input-file: it consists of a set of users, songs, and playlists that are part of a music service
-changes-file: it consists of a set of actions that applies to mixtape
+* input-file: it consists of a set of users, songs, and playlists that are part of a music service
+
+* changes-file: it consists of a set of actions that applies to mixtape
 There are 3 types of changes
 * Add an existing song to an existing playlist. Example:
 ```
@@ -113,5 +114,7 @@ In order to scale this application to handle very large input files and/or very 
 * storage
 * performance
 * robustness
+
+ As mentioned above, both input files are ingested in memory first before then running through actions one at a time.
 
 
