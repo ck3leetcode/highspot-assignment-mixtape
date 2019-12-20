@@ -11,7 +11,7 @@
 ## Installation
 In user’s terminal and download the project
 ```
-git clone git@github.com:ck3leetcode/highspot-assignment-mixtape.git
+git clone https://github.com/ck3leetcode/highspot-assignment-mixtape.git
 ```
 
 ## Build
@@ -73,8 +73,9 @@ Run the command to execute unit tests:
 ```
 
 ## File content
-input-file: it consists of a set of users, songs, and playlists that are part of a music service
-changes-file: it consists of a set of actions that applies to mixtape
+* input-file: it consists of a set of users, songs, and playlists that are part of a music service
+
+* changes-file: it consists of a set of actions that applies to mixtape
 There are 3 types of changes
 * Add an existing song to an existing playlist. Example:
 ```
@@ -109,9 +110,28 @@ I am not getting output file. Why?
 
 
 ## Discussion
-In order to scale this application to handle very large input files and/or very large changes files. There are few things to consider:
-* storage
-* performance
-* robustness
+In order to scale this application to handle very large input files and/or very large changes files, there are few technical challenges.
+* The parser currently loads the whole content in memory at once for those JSON files. The application will not be able to handle large files if the memory resources are limited.
+* It will take a long time to process and apply the change from those very large files.
+* It is required to re-process the whole dataset if any step fails (parsing / applying changes / output the result).
 
+### Version 2.0
+I would upgrade application to version 2.0 by doing the following. First I would divide the work into 3 jobs. They are responsible for ingesting of the input files, executing the changes of the files and writing the file into target location.
 
+For the ingestion job, I would implement a custom streaming parser (such as jackson stream API) that avoids loading the whole file in-memory in the first place. The ingestion job will also transform the data in the form of database entry and store in datastore (sql or no-sql).
+
+Once the ingestion is done, the next job would pull the records from `changes` table in the datastore and apply the change. The job execute the changes from database and marked as execution status. Meanwhile, the record in the change table also contains the incremental id that represents the order of execution, so that the application would be able to pick it up where it fails and developer can look at failing entry as well.
+
+Once the changes are applied, I would implement a custom writer that pulls the data from the database and output the result to target location.
+
+### Version 3.0 and beyond
+If we want to make the application very scalable and support mulitple users, the application will not be a standalone app. I would re-design it as a more distributed system.
+
+#### Loading mixtape files
+The user would upload the mixtape files to S3. In the meanwhile, there will be a service that listens the change on the S3 bucket and submit a map reduce (EMR) job that ingest the file into no-sql datastore like dynamo db. I would change the file format in csv or any other row based format that represents the mixtapes and the change files which are more friendly for running mapreduce job. The job would insert the mixtape data into dynamo db through the map reduce job.
+
+#### Processing change files
+Similar to the mixtape files, user also upload the changes file to S3. The entry of the changes file will contain the timestamp for the use later in mapreduce job. After the ingestion is done, the service would kick off another map reduce job which maps the entry by playlist id first, and perform action in the reduce phase. The actions should be executed in the order of the timestamps which is defined in the changes file.
+
+#### Render output
+Once the process is done, there will be an external service that expose the content as a REST service. Each time the service return N records to the user with a pagination token. 
