@@ -110,11 +110,26 @@ I am not getting output file. Why?
 
 
 ## Discussion
-In order to scale this application to handle very large input files and/or very large changes files. There are few things to consider:
-* storage
-* performance
-* robustness
+In order to scale this application to handle very large input files and/or very large changes files, there are few technical challenges.
+* The parser currently loads the whole content in memory at once for those JSON files. The application will not be able to handle large files if the memory resources are limited.
+* It will take a long time to process and apply the change from those very large files.
+* It is required to re-process the whole dataset if any step fails (parsing / applying changes / output the result).
 
- As mentioned above, both input files are ingested in memory first before then running through actions one at a time.
+### Version 2.0
+I would upgrade application to version 2.0 by doing the following. First I would divide the work into 3 jobs. They are responsible for ingesting of the input files, executing the changes of the files and writing the file into target location.
+
+For the ingestion job, I would implement a custom streaming parser (such as jackson stream API) that avoids loading the whole file in-memory in the first place. The ingestion job will also transform the data in the form of database entry and store in datastore (sql or no-sql).
+
+Once the ingestion is done, the next job would pull the records from `changes` table in the datastore and apply the change. I am thinking the job pull N records once at a time and execute the changes as database transaction. Meanwhile, the record in the change table also contains the incremental id that represents the order of execution, so that the application would be able to pick it up where it fail by the id.
+
+Once the changes are applied, I would implement a custom write that pulls the data from the database and output the result to target location.
+
+### Version 3.0 and beyond
+If we want to make the application very scalable, the application will not be a standalone app. I would re-design it as an ingestion pipeline, which is more distributed system. The pipeline would do the following:
+* User upload the large files to S3
+* an ingestion service checks any new file uploaded, 
+
+if that's the case, it will first ingest and populate input files into database
+* once it is done, 
 
 
