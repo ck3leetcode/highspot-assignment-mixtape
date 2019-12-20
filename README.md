@@ -120,15 +120,18 @@ I would upgrade application to version 2.0 by doing the following. First I would
 
 For the ingestion job, I would implement a custom streaming parser (such as jackson stream API) that avoids loading the whole file in-memory in the first place. The ingestion job will also transform the data in the form of database entry and store in datastore (sql or no-sql).
 
-Once the ingestion is done, the next job would pull the records from `changes` table in the datastore and apply the change. I am thinking the job pull N records once at a time and execute the changes as database transaction. Meanwhile, the record in the change table also contains the incremental id that represents the order of execution, so that the application would be able to pick it up where it fail by the id.
+Once the ingestion is done, the next job would pull the records from `changes` table in the datastore and apply the change. I am thinking the jobs pulls N records once at a time and execute the changes as database transaction. Meanwhile, the record in the change table also contains the incremental id that represents the order of execution, so that the application would be able to pick it up where it fail by the id.
 
 Once the changes are applied, I would implement a custom write that pulls the data from the database and output the result to target location.
 
 ### Version 3.0 and beyond
-If we want to make the application very scalable, the application will not be a standalone app. I would re-design it as an ingestion pipeline, which is more distributed system. The pipeline would do the following:
-* User upload the large files to S3
-* a database that commonly shared with the user uploaded files
-* an ingestion service checks any new files uploaded. If that's the case, it will first ingest and populate input files into database
-* once it is done, execute the assocated changes
+If we want to make the application very scalable, the application will not be a standalone app. I would re-design it as a more distributed system.
 
+The user would upload the large files to S3. In the meanwhile, there will be a service that listens the change on the S3 bucket and submit a map reduce job for processing when new files come, the service would also keep track the status of the whole ingestion process.
+I would change the file format in csv or any row based format that represents the mixtapes and the change files which better adapts the mapreduce file format.
+
+
+
+
+When the process is done, user should be able to download the output file on S3.
 
