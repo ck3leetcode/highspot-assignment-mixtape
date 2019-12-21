@@ -60,7 +60,7 @@ using Gradle
 ./gradlew run --args="--changes-file=src/test/resources/changes_example.json --input-file=src/test/resources/mixtape-data.json --output-file=output.json" 
 ```
 Note
-Adjust the Logging level by appending --stacktrace or --debug
+Please see `log4j.properties` for logging configuration
 
 using Java / Jar
 ```
