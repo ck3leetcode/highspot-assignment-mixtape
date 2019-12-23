@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
         version = "1.0-SNAPSHOT",
         subcommands = CommandLine.HelpCommand.class,
         description = "A command-line batch application that apply changes to a given mixtape json file",
-        commandListHeading = "%nCommands:%n%nThe most commonly used git commands are:%n")
+        commandListHeading = "%nCommands:%n%nThe most commonly used commands are:%n")
 public class Main implements Callable<Integer> {
 
     private static Logger logger = LoggerFactory.getLogger(Main.class);
