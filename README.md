@@ -48,7 +48,7 @@ A command-line batch application that apply changes to a given mixtape json file
 
 Commands:
 
-The most commonly used git commands are:
+The most commonly used commands are:
   help  Displays help information about the specified command
 ```
 
